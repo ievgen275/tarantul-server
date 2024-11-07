@@ -12,10 +12,10 @@ import websockets
 import json
 
 # Define the GPIO pins based on your setup
-pin_front_left_motor_control = 13  # PWM Output
+# pin_front_left_motor_control = 13  # PWM Output
 pin_rear_left_motor_control = 19  # PWM Output
 pin_front_right_motor_control = 18  # PWM Output
-pin_rear_right_motor_control = 12  # PWM Output
+# pin_rear_right_motor_control = 12  # PWM Output
 pin_bomba_a = 25  # Bomba A pin
 pin_bomba_b = 27  # Bomba B pin
 pin_front_mine_dropping = 20  # Mine Front
@@ -57,22 +57,22 @@ def setup():
     subprocess.run(['sudo', 'motion'], check=True)
     threading.Thread(target=read_sbus_data, daemon=True).start()
 
-    global pwm_front_left_motor, pwm_rear_left_motor, pwm_front_right_motor, pwm_rear_right_motor
+    global pwm_rear_left_motor, pwm_front_right_motor
 
     GPIO.setup(pin_bomba_b, GPIO.OUT)
     GPIO.setup(pin_bomba_a, GPIO.OUT)
     GPIO.setup(pin_front_mine_dropping, GPIO.OUT)
     GPIO.setup(pin_rear_mine_dropping, GPIO.OUT)
 
-    GPIO.setup(pin_front_left_motor_control, GPIO.OUT)
+    # GPIO.setup(pin_front_left_motor_control, GPIO.OUT)
     GPIO.setup(pin_rear_left_motor_control, GPIO.OUT)
     GPIO.setup(pin_front_right_motor_control, GPIO.OUT)
-    GPIO.setup(pin_rear_right_motor_control, GPIO.OUT)
+    # GPIO.setup(pin_rear_right_motor_control, GPIO.OUT)
 
-    pwm_front_left_motor = GPIO.PWM(pin_front_left_motor_control, 50)
+    # pwm_front_left_motor = GPIO.PWM(pin_front_left_motor_control, 50)
     pwm_rear_left_motor = GPIO.PWM(pin_rear_left_motor_control, 50)
     pwm_front_right_motor = GPIO.PWM(pin_front_right_motor_control, 50)
-    pwm_rear_right_motor = GPIO.PWM(pin_rear_right_motor_control, 50)
+    # pwm_rear_right_motor = GPIO.PWM(pin_rear_right_motor_control, 50)
 
     main()
 
@@ -157,10 +157,10 @@ def drone_control(left_motor, right_motor):
     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 4.2, 10.2)
     speed_right_motor = map_value(-right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 4.2, 10.2)
 
-    pwm_front_left_motor.ChangeDutyCycle(speed_left_motor)
+    # pwm_front_left_motor.ChangeDutyCycle(speed_left_motor)
     pwm_rear_left_motor.ChangeDutyCycle(speed_left_motor)
     pwm_front_right_motor.ChangeDutyCycle(speed_right_motor)
-    pwm_rear_right_motor.ChangeDutyCycle(speed_right_motor)
+    # pwm_rear_right_motor.ChangeDutyCycle(speed_right_motor)
     # speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
     # speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
     # if check_connection():
@@ -172,10 +172,10 @@ def map_value(x, in_min, in_max, out_min, out_max):
 
 
 def motor_stop():
-    pwm_front_left_motor.ChangeDutyCycle(7.2)
+    # pwm_front_left_motor.ChangeDutyCycle(7.2)
     pwm_rear_left_motor.ChangeDutyCycle(7.2)
     pwm_front_right_motor.ChangeDutyCycle(7.2)
-    pwm_rear_right_motor.ChangeDutyCycle(7.2)
+    # pwm_rear_right_motor.ChangeDutyCycle(7.2)
 
 
 def read_radio_signal():
@@ -220,11 +220,11 @@ def read_bomb():
 
 
 def drop_mine(pin_mine):
-    GPIO.output(pin_mine, GPIO.LOW)
+    GPIO.output(pin_mine, GPIO.OUT)
 
 
 def block_mine_dropping(pin_mine):
-    GPIO.output(pin_mine, GPIO.OUT)
+    GPIO.output(pin_mine, GPIO.HIGH)
 
 
 def drop_bomba(pin_bomb):
