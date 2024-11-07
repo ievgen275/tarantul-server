@@ -152,8 +152,8 @@ def start_ws():
 
 
 def drone_control(left_motor, right_motor):
-    speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
-    speed_right_motor = map_value(-right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+    speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 4.2, 10.2)
+    speed_right_motor = map_value(-right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 4.2, 10.2)
 
     pwm_front_left_motor.ChangeDutyCycle(speed_left_motor)
     pwm_rear_left_motor.ChangeDutyCycle(speed_left_motor)
@@ -170,10 +170,10 @@ def map_value(x, in_min, in_max, out_min, out_max):
 
 
 def motor_stop():
-    pwm_front_left_motor.ChangeDutyCycle(40)
-    pwm_rear_left_motor.ChangeDutyCycle(40)
-    pwm_front_right_motor.ChangeDutyCycle(40)
-    pwm_rear_right_motor.ChangeDutyCycle(40)
+    pwm_front_left_motor.ChangeDutyCycle(7.2)
+    pwm_rear_left_motor.ChangeDutyCycle(7.2)
+    pwm_front_right_motor.ChangeDutyCycle(7.2)
+    pwm_rear_right_motor.ChangeDutyCycle(7.2)
 
 
 def read_radio_signal():
