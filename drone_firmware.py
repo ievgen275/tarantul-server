@@ -226,7 +226,7 @@ def drop_mine(pin_mine):
 
 
 def block_mine_dropping(pin_mine):
-    GPIO.output(pin_mine, GPIO.HIGH)
+    GPIO.output(pin_mine, GPIO.OUT)
 
 
 def drop_bomba(pin_bomb):
