@@ -157,7 +157,7 @@ def drone_control(left_motor, right_motor):
     print("LEFT_MOTOR_SPEED: ", left_motor)
     print("RIGHT_MOTOR_SPEED: ", right_motor)
     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
-    speed_right_motor = map_value(-right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+    speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
     print("LEFT_MOTOR_SPEED------MAP: ", speed_left_motor)
     print("RIGHT_MOTOR_SPEED------MAP: ", speed_right_motor)
 
