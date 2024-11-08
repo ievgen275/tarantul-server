@@ -73,6 +73,8 @@ def setup():
     pwm_rear_left_motor = GPIO.PWM(pin_rear_left_motor_control, 50)
     pwm_front_right_motor = GPIO.PWM(pin_front_right_motor_control, 50)
     # pwm_rear_right_motor = GPIO.PWM(pin_rear_right_motor_control, 50)
+    pwm_rear_left_motor.start(1)
+    pwm_front_right_motor.start(1)
 
     main()
 
@@ -175,8 +177,8 @@ def map_value(x, in_min, in_max, out_min, out_max):
 
 def motor_stop():
     # pwm_front_left_motor.ChangeDutyCycle(7.2)
-    pwm_rear_left_motor.ChangeDutyCycle(7.2)
-    pwm_front_right_motor.ChangeDutyCycle(7.2)
+    pwm_rear_left_motor.ChangeDutyCycle(7.1)
+    pwm_front_right_motor.ChangeDutyCycle(7.1)
     # pwm_rear_right_motor.ChangeDutyCycle(7.2)
 
 
