@@ -163,7 +163,7 @@ def drone_control(left_motor, right_motor):
 
     # pwm_front_left_motor.ChangeDutyCycle(speed_left_motor)
     pwm_rear_left_motor.ChangeDutyCycle(speed_left_motor)
-    pwm_front_right_motor.ChangeDutyCycle(speed_right_motor)
+    #pwm_front_right_motor.ChangeDutyCycle(speed_right_motor)
     # pwm_rear_right_motor.ChangeDutyCycle(speed_right_motor)
     # speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
     # speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
