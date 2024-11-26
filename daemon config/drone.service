@@ -3,8 +3,8 @@ Description=Drone Firmware
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/conceptarea/raspberry-clone-firmware/drone.py
-WorkingDirectory=/home/conceptarea/raspberry-clone-firmware/
+ExecStart=/usr/bin/python3 /home/conceptarea/tarantul-server/drone.service
+WorkingDirectory=/home/conceptarea/tarantul-server/
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
