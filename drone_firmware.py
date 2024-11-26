@@ -54,7 +54,7 @@ def main():
 
 def setup():
     print('Setup start')
-    subprocess.run(['sudo', 'motion'], check=True)
+    #subprocess.run(['sudo', 'motion'], check=True)
     threading.Thread(target=read_sbus_data, daemon=True).start()
 
     global pwm_rear_left_motor, pwm_front_right_motor
