@@ -4,7 +4,7 @@ import threading
 from network_signal_settings import ETHERNET_SETTINGS, RADIO_SETTINGS
 from sbus_communication import read_sbus_data, get_channel, stop_read_sbus, is_payload_ready, start_read_sbus
 from gps_handler import start_read_gps
-# from mavlink_connection import set_servo, check_connection
+import mavlink_connection
 import time
 import RPi.GPIO as GPIO
 import asyncio
@@ -12,14 +12,12 @@ import websockets
 import json
 
 # Define the GPIO pins based on your setup
-# pin_front_left_motor_control = 13  # PWM Output
-pin_rear_left_motor_control = 19  # PWM Output
-pin_front_right_motor_control = 18  # PWM Output
-# pin_rear_right_motor_control = 12  # PWM Output
+pin_left_motor_control = 12  # PWM Output
+pin_right_motor_control = 18  # PWM Output
 pin_bomba_a = 25  # Bomba A pin
-pin_bomba_b = 27  # Bomba B pin
+pin_bomba_b = 16  # Bomba B pin
 pin_front_mine_dropping = 20  # Mine Front
-pin_rear_mine_dropping = 21  # Mine Rear
+pin_rear_mine_dropping = 24  # Mine Rear
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
@@ -32,20 +30,13 @@ IDLE_SIGNAL_VALUE = ETHERNET_SETTINGS.idle
 MAX_IDLE_VALUE = ETHERNET_SETTINGS.idle + ETHERNET_SETTINGS.offset
 MIN_IDLE_VALUE = ETHERNET_SETTINGS.idle - ETHERNET_SETTINGS.offset
 
-STANDARD = 5
-DUO = 6
-
 is_bombaA_released = False
 lest_ws_msg = 0
-pwm_front_left_motor = None
-pwm_rear_left_motor = None
-pwm_front_right_motor = None
-pwm_rear_right_motor = None
+pwm_left_motor = None
+pwm_right_motor = None
 
 # checking connection variables
 connection_type = RADIO_SETTINGS.type
-control_option = STANDARD
-
 
 def main():
     threading.Thread(target=start_ws).start()
@@ -56,25 +47,25 @@ def setup():
     print('Setup start')
     #subprocess.run(['sudo', 'motion'], check=True)
     threading.Thread(target=read_sbus_data, daemon=True).start()
+    heartbeat_threading = threading.Thread(target=mavlink_connection.send_heartbeat())
+    heartbeat_threading.start()
 
-    global pwm_rear_left_motor, pwm_front_right_motor
+    mavlink_connection.arm_vehicle()
+
+    global pwm_left_motor, pwm_right_motor
 
     GPIO.setup(pin_bomba_b, GPIO.OUT)
     GPIO.setup(pin_bomba_a, GPIO.OUT)
     GPIO.setup(pin_front_mine_dropping, GPIO.OUT)
     GPIO.setup(pin_rear_mine_dropping, GPIO.OUT)
 
-    # GPIO.setup(pin_front_left_motor_control, GPIO.OUT)
-    GPIO.setup(pin_rear_left_motor_control, GPIO.OUT)
-    GPIO.setup(pin_front_right_motor_control, GPIO.OUT)
-    # GPIO.setup(pin_rear_right_motor_control, GPIO.OUT)
+    GPIO.setup(pin_left_motor_control, GPIO.OUT)
+    GPIO.setup(pin_right_motor_control, GPIO.OUT)
 
-    # pwm_front_left_motor = GPIO.PWM(pin_front_left_motor_control, 50)
-    pwm_rear_left_motor = GPIO.PWM(pin_rear_left_motor_control, 50)
-    pwm_front_right_motor = GPIO.PWM(pin_front_right_motor_control, 50)
-    # pwm_rear_right_motor = GPIO.PWM(pin_rear_right_motor_control, 50)
-    pwm_rear_left_motor.start(1)
-    pwm_front_right_motor.start(1)
+    pwm_left_motor = GPIO.PWM(pin_left_motor_control, 50)
+    pwm_right_motor = GPIO.PWM(pin_right_motor_control, 50)
+    pwm_left_motor.start(1)
+    pwm_right_motor.start(1)
 
     main()
 
@@ -131,13 +122,6 @@ async def handler(websocket):
                     block_bomba(pin_bomba_b)
                     is_bombaA_released = False
 
-            elif message.get("type") == "controlOption":
-                global control_option
-                if message.get("value") == "duo":
-                    control_option = DUO
-                else:
-                    control_option = STANDARD
-
         except Exception as e:
             print(f"Exception occurred: {e}")
             change_network(RADIO_SETTINGS)
@@ -154,31 +138,25 @@ def start_ws():
 
 
 def drone_control(left_motor, right_motor):
-    print("LEFT_MOTOR_SPEED: ", left_motor)
-    print("RIGHT_MOTOR_SPEED: ", right_motor)
     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
     speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
-    print("LEFT_MOTOR_SPEED------MAP: ", speed_left_motor)
-    print("RIGHT_MOTOR_SPEED------MAP: ", speed_right_motor)
-    # pwm_front_left_motor.ChangeDutyCycle(speed_left_motor)
-    pwm_rear_left_motor.ChangeDutyCycle(speed_left_motor)
-    pwm_front_right_motor.ChangeDutyCycle(speed_right_motor)
-    # pwm_rear_right_motor.ChangeDutyCycle(speed_right_motor)
-    # speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
-    # speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
-    # if check_connection():
-    #     set_servo(1, speed_left_motor)
-    #     set_servo(2, speed_right_motor)
+
+    pwm_left_motor.ChangeDutyCycle(speed_left_motor)
+    pwm_right_motor.ChangeDutyCycle(speed_right_motor)
+
+    speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
+    speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
+    if mavlink_connection.check_connection():
+        mavlink_connection.override_rc_channel(1, speed_left_motor)
+        mavlink_connection.override_rc_channel(2, speed_right_motor)
 
 def map_value(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 
 def motor_stop():
-    # pwm_front_left_motor.ChangeDutyCycle(7.2)
-    pwm_rear_left_motor.ChangeDutyCycle(40)
-    pwm_front_right_motor.ChangeDutyCycle(40)
-    # pwm_rear_right_motor.ChangeDutyCycle(7.2)
+    pwm_left_motor.ChangeDutyCycle(40)
+    pwm_right_motor.ChangeDutyCycle(40)
 
 
 def read_radio_signal():
