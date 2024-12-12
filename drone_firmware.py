@@ -46,7 +46,7 @@ def setup():
     print('Setup start')
     #subprocess.run(['sudo', 'motion'], check=True)
     if mavlink_connection.check_connection():
-        threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
+        #threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
         mavlink_connection.arm_vehicle()
     threading.Thread(target=read_sbus_data, daemon=True).start()
 
