@@ -45,9 +45,8 @@ def main():
 def setup():
     print('Setup start')
     #subprocess.run(['sudo', 'motion'], check=True)
-    if mavlink_connection.check_connection():
-        #threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
-        mavlink_connection.arm_vehicle()
+    threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
+    mavlink_connection.arm_vehicle()
     threading.Thread(target=read_sbus_data, daemon=True).start()
 
     global pwm_left_motor, pwm_right_motor
@@ -135,30 +134,39 @@ def start_ws():
     asyncio.run(start_websocket())
 
 def drone_control(left_motor, right_motor):
-    if mavlink_connection.check_connection():
-        speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
-        speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
+    # if mavlink_connection.check_connection():
+    #     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
+    #     speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
+    #
+    #     mavlink_connection.override_rc_channel(1, speed_left_motor)
+    #     mavlink_connection.override_rc_channel(2, speed_right_motor)
+    # else:
+    #     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+    #     speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+    #
+    #     pwm_left_motor.ChangeDutyCycle(speed_left_motor)
+    #     pwm_right_motor.ChangeDutyCycle(speed_right_motor)
 
-        mavlink_connection.override_rc_channel(1, speed_left_motor)
-        mavlink_connection.override_rc_channel(2, speed_right_motor)
-    else:
-        speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
-        speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+    speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
+    speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
 
-        pwm_left_motor.ChangeDutyCycle(speed_left_motor)
-        pwm_right_motor.ChangeDutyCycle(speed_right_motor)
+    mavlink_connection.override_rc_channel(1, speed_left_motor)
+    mavlink_connection.override_rc_channel(2, speed_right_motor)
 
 def map_value(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 
 def motor_stop():
-    if mavlink_connection.check_connection():
-        mavlink_connection.override_rc_channel(1, 1500)
-        mavlink_connection.override_rc_channel(2, 1500)
-    else:
-        pwm_left_motor.ChangeDutyCycle(40)
-        pwm_right_motor.ChangeDutyCycle(40)
+    # if mavlink_connection.check_connection():
+    #     mavlink_connection.override_rc_channel(1, 1500)
+    #     mavlink_connection.override_rc_channel(2, 1500)
+    # else:
+    #     pwm_left_motor.ChangeDutyCycle(40)
+    #     pwm_right_motor.ChangeDutyCycle(40)
+
+    mavlink_connection.override_rc_channel(1, 1500)
+    mavlink_connection.override_rc_channel(2, 1500)
 
 
 def read_radio_signal():
