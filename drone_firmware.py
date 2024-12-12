@@ -134,7 +134,7 @@ async def start_websocket():
 def start_ws():
     asyncio.run(start_websocket())
 
-
+'''
 def drone_control(left_motor, right_motor):
     if mavlink_connection.check_connection():
         speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
@@ -148,6 +148,7 @@ def drone_control(left_motor, right_motor):
 
         pwm_left_motor.ChangeDutyCycle(speed_left_motor)
         pwm_right_motor.ChangeDutyCycle(speed_right_motor)
+'''
 
 def map_value(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
