@@ -45,13 +45,12 @@ def main():
 
 def setup():
     print('Setup start')
+    global pwm_left_motor, pwm_right_motor, mavlink_is_connect
     #subprocess.run(['sudo', 'motion'], check=True)
     mavlink_is_connect = mavlink_connection.check_connection()
     threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
     mavlink_connection.arm_vehicle()
     threading.Thread(target=read_sbus_data, daemon=True).start()
-
-    global pwm_left_motor, pwm_right_motor, mavlink_is_connect
 
     GPIO.setup(pin_bomba_b, GPIO.OUT)
     GPIO.setup(pin_bomba_a, GPIO.OUT)
