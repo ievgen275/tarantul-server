@@ -203,7 +203,7 @@ def read_bomb():
 
 
 def drop_mine(pin_mine):
-    GPIO.output(pin_mine, GPIO.OUT)
+    GPIO.output(pin_mine, GPIO.HIGH)
 
 
 def block_mine_dropping(pin_mine):
