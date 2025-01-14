@@ -188,7 +188,10 @@ def start_leash():
         gas_throttle_left = read_adc(0)
         gas_throttle_right = read_adc(1)
 
-        drone_control(gas_throttle_left, gas_throttle_right)
+        throttle_left = map_value(gas_throttle_left, 272, 1023, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
+        throttle_right = map_value(gas_throttle_right, 272, 1023, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
+
+        drone_control(throttle_left, throttle_right)
 
 def read_radio_signal():
     print('Radio is connect')
