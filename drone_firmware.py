@@ -177,8 +177,6 @@ def motor_stop():
     pwm_right_motor.ChangeDutyCycle(40)
 
 def read_adc(channel):
-    if channel < 0 or channel > 7:
-        return -1
     adc = spi.xfer2([1, (8 + channel) << 4, 0])
     value = ((adc[1] & 3) << 8) + adc[2]
     return value
@@ -187,11 +185,12 @@ def start_leash():
     while True:
         gas_throttle_left = read_adc(0)
         gas_throttle_right = read_adc(1)
-
-        throttle_left = map_value(gas_throttle_left, 272, 1023, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
-        throttle_right = map_value(gas_throttle_right, 272, 1023, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
-
-        drone_control(throttle_left, throttle_right)
+        if gas_throttle_left > 10 and gas_throttle_right > 10:
+            throttle_left = map_value(gas_throttle_left, 272, 1023, 0, 100)
+            throttle_right = map_value(gas_throttle_right, 272, 1023, 0, 100)
+            drone_control(throttle_left, throttle_right)
+        else:
+            change_network(RADIO_SETTINGS)
 
 def read_radio_signal():
     print('Radio is connect')
