@@ -3,7 +3,7 @@ Description=Drone Firmware
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/conceptarea/tarantul-server/drone.
+ExecStart=/usr/bin/python3 /home/conceptarea/tarantul-server/drone.py
 WorkingDirectory=/home/conceptarea/tarantul-server/
 StandardOutput=inherit
 StandardError=inherit
