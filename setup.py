@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'tarantul-server = tarantul-server.drone_firmware:initialisation',  # Вказівка на вашу команду
+            'tarantul-server = tarantul_server.drone_firmware:initialisation',  # Вказівка на вашу команду
         ],
     },
 )
