@@ -1,0 +1,7 @@
+Metadata-Version: 2.2
+Name: tarantul-server
+Version: 0.1
+Requires-Dist: websockets
+Requires-Dist: spidev
+Requires-Dist: gps
+Dynamic: requires-dist

@@ -1,0 +1,2 @@
+[console_scripts]
+tarantul-server = tarantul_server.drone_firmware:initialisation

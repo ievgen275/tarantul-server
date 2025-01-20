@@ -3,7 +3,7 @@ import threading
 from network_signal_settings import ETHERNET_SETTINGS, RADIO_SETTINGS
 from sbus_communication import read_sbus_data, get_channel, is_payload_ready
 from gps_handler import start_read_gps
-import mavlink_connection
+#import mavlink_connection
 import time
 import RPi.GPIO as GPIO
 import asyncio
@@ -49,10 +49,10 @@ def main():
 def initialisation():
     print('Setup start')
     global pwm_left_motor, pwm_right_motor, mavlink_is_connect, spi
-    subprocess.run(['sudo', 'motion'], check=True)
-    mavlink_is_connect = mavlink_connection.check_connection()
-    threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
-    mavlink_connection.arm_vehicle()
+    #subprocess.run(['sudo', 'motion'], check=True)
+    #mavlink_is_connect = mavlink_connection.check_connection()
+    #threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
+    #mavlink_connection.arm_vehicle()
     threading.Thread(target=read_sbus_data, daemon=True).start()
 
     spi = spidev.SpiDev()
@@ -142,39 +142,39 @@ def start_ws():
     asyncio.run(start_websocket())
 
 def drone_control(left_motor, right_motor):
-    if mavlink_is_connect:
-        speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
-        speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
-
-        mavlink_connection.override_rc_channel(1, speed_left_motor)
-        mavlink_connection.override_rc_channel(2, speed_right_motor)
-    else:
-        speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
-        speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
-
-        pwm_left_motor.ChangeDutyCycle(speed_left_motor)
-        pwm_right_motor.ChangeDutyCycle(speed_right_motor)
-
-    # speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
-    # speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+    # if mavlink_is_connect:
+    #     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
+    #     speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
     #
-    # pwm_left_motor.ChangeDutyCycle(speed_left_motor)
-    # pwm_right_motor.ChangeDutyCycle(speed_right_motor)
+    #     mavlink_connection.override_rc_channel(1, speed_left_motor)
+    #     mavlink_connection.override_rc_channel(2, speed_right_motor)
+    # else:
+    #     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+    #     speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+    #
+    #     pwm_left_motor.ChangeDutyCycle(speed_left_motor)
+    #     pwm_right_motor.ChangeDutyCycle(speed_right_motor)
+
+    speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+    speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
+
+    pwm_left_motor.ChangeDutyCycle(speed_left_motor)
+    pwm_right_motor.ChangeDutyCycle(speed_right_motor)
 
 def map_value(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 
 def motor_stop():
-    if mavlink_is_connect:
-        mavlink_connection.override_rc_channel(1, 1500)
-        mavlink_connection.override_rc_channel(2, 1500)
-    else:
-        pwm_left_motor.ChangeDutyCycle(40)
-        pwm_right_motor.ChangeDutyCycle(40)
+    # if mavlink_is_connect:
+    #     mavlink_connection.override_rc_channel(1, 1500)
+    #     mavlink_connection.override_rc_channel(2, 1500)
+    # else:
+    #     pwm_left_motor.ChangeDutyCycle(40)
+    #     pwm_right_motor.ChangeDutyCycle(40)
 
-    # pwm_left_motor.ChangeDutyCycle(40)
-    # pwm_right_motor.ChangeDutyCycle(40)
+    pwm_left_motor.ChangeDutyCycle(40)
+    pwm_right_motor.ChangeDutyCycle(40)
 
 def read_adc(channel):
     adc = spi.xfer2([1, (8 + channel) << 4, 0])
