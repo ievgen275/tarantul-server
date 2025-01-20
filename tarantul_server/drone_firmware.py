@@ -46,7 +46,7 @@ def main():
     threading.Thread(target=start_leash).start()
 
 
-def setup():
+def initialisation():
     print('Setup start')
     global pwm_left_motor, pwm_right_motor, mavlink_is_connect, spi
     #subprocess.run(['sudo', 'motion'], check=True)
@@ -274,4 +274,4 @@ def change_network(network_settings):
                                                    ETHERNET_SETTINGS.idle + ETHERNET_SETTINGS.offset)
 
 
-setup()
+initialisation()
