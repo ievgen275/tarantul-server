@@ -35,7 +35,7 @@ lest_ws_msg = 0
 pwm_left_motor = None
 pwm_right_motor = None
 spi = None
-#mavlink_is_connect = None
+mavlink_is_connect = None
 
 
 # checking connection variables
@@ -98,7 +98,7 @@ async def handler(websocket):
 
             if message.get("type") == "joystick":
                 if connection_type == ETHERNET_SETTINGS.type:
-                    drone_control(message.get("x"), -message.get("y"))
+                    drone_control(message.get("left"), message.get("right"))
                     lest_ws_msg = time.time()
             elif message.get("type") == "mine":
                 if message.get("frontMine"):
@@ -183,12 +183,16 @@ def start_leash():
     while True:
         gas_throttle_left = read_adc(0)
         gas_throttle_right = read_adc(1)
+
         if gas_throttle_left > 10 and gas_throttle_right > 10:
             throttle_left = map_value(gas_throttle_left, 272, 1023, 0, 100)
             throttle_right = map_value(gas_throttle_right, 272, 1023, 0, 100)
+
             drone_control(throttle_left, throttle_right)
         else:
-            change_network(RADIO_SETTINGS)
+            change_network(ETHERNET_SETTINGS)
+            #change_network(RADIO_SETTINGS)
+        time.sleep(0.5)
 
 def read_radio_signal():
     print('Radio is connect')

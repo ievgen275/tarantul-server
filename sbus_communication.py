@@ -27,11 +27,11 @@ def read_sbus_data():
             print("Start reading")
             payload_ready, failsafe, lost_frame = sbus.read(channels)
             is_ready = payload_ready
-            # if payload_ready:
-            #     print("Channels: ", channels)
-            #     print("Fail-Safe Status:", failsafe)
-            #     print("Lost Frame Status:", lost_frame)
-                
+            #if payload_ready:
+            #    print("Channels: ", channels)
+            #    print("Fail-Safe Status:", failsafe)
+            #    print("Lost Frame Status:", lost_frame)
+ 
     except KeyboardInterrupt:
         print("Stopped by User")
 
