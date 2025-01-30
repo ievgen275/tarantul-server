@@ -89,9 +89,6 @@ async def handler(websocket):
                 message = json.loads(data_json)
                 block_mine_dropping(pin_rear_mine_dropping)
                 block_mine_dropping(pin_front_mine_dropping)
-            except json.JSONDecodeError as e:
-                print(f"Error decoding JSON: {e}")
-                continue
             except websockets.ConnectionClosed as e:
                 print(f"WebSocket connection closed: {e}")
                 motor_stop()
@@ -100,7 +97,7 @@ async def handler(websocket):
 
             if message.get("type") == "joystick":
                 if connection_type == ETHERNET_SETTINGS.type:
-                    drone_control(message.get("x"), message.get("y"))
+                    drone_control(message.get("x"), -message.get("y"))
                     lest_ws_msg = time.time()
             elif message.get("type") == "mine":
                 if message.get("frontMine"):
