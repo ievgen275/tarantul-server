@@ -44,7 +44,7 @@ connection_type = RADIO_SETTINGS.type
 def main():
     threading.Thread(target=start_ws).start()
     threading.Thread(target=read_radio_signal).start()
-    #threading.Thread(target=start_leash).start()
+    threading.Thread(target=start_leash).start()
 
 
 def setup():
@@ -94,7 +94,6 @@ async def handler(websocket):
                 print(f"WebSocket connection closed: {e}")
                 motor_stop()
                 change_network(RADIO_SETTINGS)
-                print('I here')
                 break
 
             if message.get("type") == "joystick":
@@ -190,7 +189,6 @@ def start_leash():
 
             drone_control(throttle_left, throttle_right)
         else:
-            #change_network(ETHERNET_SETTINGS)
             change_network(RADIO_SETTINGS)
         time.sleep(0.5)
 
