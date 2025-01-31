@@ -84,6 +84,7 @@ async def handler(websocket):
 
     print('Start websocket')
     while True:
+        print('I here')
         try:
             try:
                 data_json = await websocket.recv()
@@ -99,7 +100,6 @@ async def handler(websocket):
             if message.get("type") == "joystick":
                 if connection_type == ETHERNET_SETTINGS.type:
                     drone_control(message.get("left"), message.get("right"))
-                    print('Drone is run')
                     lest_ws_msg = time.time()
             elif message.get("type") == "mine":
                 if message.get("frontMine"):
