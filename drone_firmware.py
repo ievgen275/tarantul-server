@@ -189,7 +189,7 @@ def start_leash():
 
             drone_control(throttle_left, throttle_right)
         else:
-            change_network(RADIO_SETTINGS)
+            change_network(ETHERNET_SETTINGS)
         time.sleep(0.5)
 
 def read_radio_signal():
