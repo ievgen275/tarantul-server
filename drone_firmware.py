@@ -84,11 +84,11 @@ async def handler(websocket):
 
     print('Start websocket')
     while True:
-        print('I here')
         try:
             try:
                 data_json = await websocket.recv()
                 message = json.loads(data_json)
+                print(message)
                 block_mine_dropping(pin_rear_mine_dropping)
                 block_mine_dropping(pin_front_mine_dropping)
             except websockets.ConnectionClosed as e:
