@@ -3,7 +3,7 @@ import threading
 from network_signal_settings import ETHERNET_SETTINGS, RADIO_SETTINGS
 from sbus_communication import read_sbus_data, get_channel, is_payload_ready
 from gps_handler import start_read_gps
-import mavlink_connection
+#import mavlink_connection
 import time
 import RPi.GPIO as GPIO
 import asyncio
