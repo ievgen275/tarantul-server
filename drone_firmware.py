@@ -92,6 +92,7 @@ async def handler(websocket):
                 block_mine_dropping(pin_front_mine_dropping)
             except websockets.ConnectionClosed as e:
                 print(f"WebSocket connection closed: {e}")
+                print('I here')
                 motor_stop()
                 change_network(RADIO_SETTINGS)
                 break
