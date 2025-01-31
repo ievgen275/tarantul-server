@@ -3,7 +3,7 @@ import threading
 from network_signal_settings import ETHERNET_SETTINGS, RADIO_SETTINGS
 from sbus_communication import read_sbus_data, get_channel, is_payload_ready
 from gps_handler import start_read_gps
-#import mavlink_connection
+import mavlink_connection
 import time
 import RPi.GPIO as GPIO
 import asyncio
@@ -27,11 +27,11 @@ GPIO.cleanup()
 MIN_SIGNAL_VALUE = ETHERNET_SETTINGS.min
 MAX_SIGNAL_VALUE = ETHERNET_SETTINGS.max
 IDLE_SIGNAL_VALUE = ETHERNET_SETTINGS.idle
-MAX_IDLE_VALUE = ETHERNET_SETTINGS.idle + ETHERNET_SETTINGS.offset
-MIN_IDLE_VALUE = ETHERNET_SETTINGS.idle - ETHERNET_SETTINGS.offset
 
 is_bombaA_released = False
 lest_ws_msg = 0
+
+
 pwm_left_motor = None
 pwm_right_motor = None
 spi = None
@@ -51,7 +51,8 @@ def setup():
     print('Setup start')
     global pwm_left_motor, pwm_right_motor, mavlink_is_connect, spi
     #subprocess.run(['sudo', 'motion'], check=True)
-    #mavlink_is_connect = mavlink_connection.check_connection()
+    mavlink_is_connect = mavlink_connection.check_connection()
+    print(mavlink_is_connect)
     #threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
     #mavlink_connection.arm_vehicle()
     threading.Thread(target=read_sbus_data, daemon=True).start()
@@ -252,28 +253,16 @@ def block_bomba(pin_bomb):
 
 def change_network(network_settings):
     print(network_settings.type)
-    global connection_type, MIN_SIGNAL_VALUE, MAX_SIGNAL_VALUE, IDLE_SIGNAL_VALUE, MAX_IDLE_VALUE, MIN_IDLE_VALUE
+    global connection_type, MIN_SIGNAL_VALUE, MAX_SIGNAL_VALUE, IDLE_SIGNAL_VALUE
     connection_type = network_settings.type
     MIN_SIGNAL_VALUE = network_settings.min
     MAX_SIGNAL_VALUE = network_settings.max
     IDLE_SIGNAL_VALUE = network_settings.idle
-    MAX_IDLE_VALUE = network_settings.idle + network_settings.offset
-    MIN_IDLE_VALUE = network_settings.idle - network_settings.offset
 
     if connection_type == RADIO_SETTINGS.type:
-        MIN_SIGNAL_VALUE = map_value(MIN_SIGNAL_VALUE, network_settings.min, network_settings.max,
-                                                     ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
-        MAX_SIGNAL_VALUE = map_value(MAX_SIGNAL_VALUE, network_settings.min, network_settings.max,
-                                                     ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
+        MIN_SIGNAL_VALUE = map_value(MIN_SIGNAL_VALUE, network_settings.min, network_settings.max, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
+        MAX_SIGNAL_VALUE = map_value(MAX_SIGNAL_VALUE, network_settings.min, network_settings.max, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
         IDLE_SIGNAL_VALUE = ETHERNET_SETTINGS.idle
-        MAX_IDLE_VALUE = map_value(MAX_IDLE_VALUE, network_settings.idle - network_settings.offset,
-                                                   network_settings.idle + network_settings.offset,
-                                                   ETHERNET_SETTINGS.idle - ETHERNET_SETTINGS.offset,
-                                                   ETHERNET_SETTINGS.idle + ETHERNET_SETTINGS.offset)
-        MIN_IDLE_VALUE = map_value(MIN_IDLE_VALUE, network_settings.idle - network_settings.offset,
-                                                   network_settings.idle + network_settings.offset,
-                                                   ETHERNET_SETTINGS.idle - ETHERNET_SETTINGS.offset,
-                                                   ETHERNET_SETTINGS.idle + ETHERNET_SETTINGS.offset)
 
 
 setup()

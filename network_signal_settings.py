@@ -14,3 +14,9 @@ class RADIO_SETTINGS:
     max = 1811
     idle = 992
     offset = 25
+
+class LEASH_SETTINGS:
+    type = 'Leash'
+    min = 272
+    max = 1023
+    offset = 10
