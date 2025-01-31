@@ -44,7 +44,7 @@ connection_type = RADIO_SETTINGS.type
 def main():
     threading.Thread(target=start_ws).start()
     threading.Thread(target=read_radio_signal).start()
-    threading.Thread(target=start_leash).start()
+    #threading.Thread(target=start_leash).start()
 
 
 def setup():
