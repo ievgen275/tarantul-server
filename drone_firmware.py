@@ -98,7 +98,7 @@ async def handler(websocket):
 
             if message.get("type") == "joystick":
                 if connection_type == ETHERNET_SETTINGS.type:
-                    print('------ X ------')
+                    print('Drone is run')
                     drone_control(message.get("left"), message.get("right"))
                     lest_ws_msg = time.time()
             elif message.get("type") == "mine":
