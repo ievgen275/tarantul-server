@@ -51,8 +51,7 @@ def setup():
     print('Setup start')
     global pwm_left_motor, pwm_right_motor, mavlink_is_connect, spi
     #subprocess.run(['sudo', 'motion'], check=True)
-    mavlink_is_connect = mavlink_connection.check_connection()
-    print(mavlink_is_connect)
+    #mavlink_is_connect = mavlink_connection.check_connection()
     #threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
     #mavlink_connection.arm_vehicle()
     threading.Thread(target=read_sbus_data, daemon=True).start()
@@ -160,8 +159,6 @@ def drone_control(left_motor, right_motor):
     pwm_left_motor.ChangeDutyCycle(speed_left_motor)
     pwm_right_motor.ChangeDutyCycle(speed_right_motor)
 
-def map_value(x, in_min, in_max, out_min, out_max):
-    return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 
 def motor_stop():
@@ -264,5 +261,7 @@ def change_network(network_settings):
         MAX_SIGNAL_VALUE = map_value(MAX_SIGNAL_VALUE, network_settings.min, network_settings.max, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
         IDLE_SIGNAL_VALUE = ETHERNET_SETTINGS.idle
 
+def map_value(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 setup()
