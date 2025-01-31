@@ -251,7 +251,7 @@ def block_bomba(pin_bomb):
 
 
 def change_network(network_settings):
-    # print(network_settings.type)
+    print(network_settings.type)
     global connection_type, MIN_SIGNAL_VALUE, MAX_SIGNAL_VALUE, IDLE_SIGNAL_VALUE
     connection_type = network_settings.type
     MIN_SIGNAL_VALUE = network_settings.min
