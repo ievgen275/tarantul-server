@@ -34,8 +34,9 @@ is_bombaA_released = False
 lest_ws_msg = 0
 pwm_left_motor = None
 pwm_right_motor = None
-mavlink_is_connect = None
 spi = None
+#mavlink_is_connect = None
+
 
 # checking connection variables
 connection_type = RADIO_SETTINGS.type
