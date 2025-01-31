@@ -88,7 +88,6 @@ async def handler(websocket):
             try:
                 data_json = await websocket.recv()
                 message = json.loads(data_json)
-                print(message)
                 block_mine_dropping(pin_rear_mine_dropping)
                 block_mine_dropping(pin_front_mine_dropping)
             except websockets.ConnectionClosed as e:
@@ -96,7 +95,7 @@ async def handler(websocket):
                 motor_stop()
                 change_network(RADIO_SETTINGS)
                 break
-
+            print(message.get("type") == "joystick")
             if message.get("type") == "joystick":
                 if connection_type == ETHERNET_SETTINGS.type:
                     drone_control(message.get("left"), message.get("right"))
