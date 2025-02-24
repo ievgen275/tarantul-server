@@ -16,7 +16,7 @@ pin_left_motor_control = 12  # PWM Output
 pin_right_motor_control = 18  # PWM Output
 pin_bomba_a = 25  # Bomba A pin
 pin_bomba_b = 16  # Bomba B pin
-pin_front_mine_dropping = 20  # Mine Front
+pin_front_mine_dropping = 23  # Mine Front
 pin_rear_mine_dropping = 24  # Mine Rear
 
 GPIO.setwarnings(False)
@@ -78,7 +78,7 @@ def setup():
 
 async def handler(websocket):
     print('Websocket is open')
-    global is_bombaA_released, lest_ws_msg
+    global lest_ws_msg
     change_network(ETHERNET_SETTINGS)
     threading.Thread(target=start_read_gps, args=(websocket,), daemon=True).start()
 
@@ -97,7 +97,6 @@ async def handler(websocket):
                 break
 
             if message.get("type") == "joystick":
-                print(connection_type)
                 if connection_type == ETHERNET_SETTINGS.type:
                     drone_control(message.get("left"), message.get("right"))
                     lest_ws_msg = time.time()
@@ -112,19 +111,15 @@ async def handler(websocket):
             elif message.get("type") == "bomba":
                 if message.get("bombA"):
                     print('Bomba in A position')
-                    is_bombaA_released = True
                     drop_bomba(pin_bomba_a)
                 else:
-                    is_bombaA_released = False
                     block_bomba(pin_bomba_a)
                 if message.get("bombB"):
-                    if is_bombaA_released:
-                        print('Bomba in B position')
-                        drop_bomba(pin_bomba_b)
-                        is_bombaA_released = False
+                    print('Bomba in B position')
+                    drop_bomba(pin_bomba_a)
+                    drop_bomba(pin_bomba_b)
                 else:
                     block_bomba(pin_bomba_b)
-                    is_bombaA_released = False
 
         except Exception as e:
             print(f"Exception occurred: {e}")
@@ -157,8 +152,9 @@ def drone_control(left_motor, right_motor):
     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
     speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
 
-    pwm_left_motor.ChangeDutyCycle(speed_left_motor)
-    pwm_right_motor.ChangeDutyCycle(speed_right_motor)
+    if speed_left_motor < 76 and speed_right_motor < 76 and speed_left_motor > 4 and speed_right_motor > 4:
+        pwm_left_motor.ChangeDutyCycle(speed_left_motor)
+        pwm_right_motor.ChangeDutyCycle(speed_right_motor)
 
 
 
@@ -214,8 +210,8 @@ def read_radio_signal():
 
 
 def read_mine():
-    drop_mine(pin_front_mine_dropping) if get_channel(2) > RADIO_SETTINGS.idle else block_mine_dropping(pin_front_mine_dropping)
-    drop_mine(pin_rear_mine_dropping) if get_channel(3) > RADIO_SETTINGS.idle else block_mine_dropping(pin_rear_mine_dropping)
+    drop_mine(pin_front_mine_dropping) if get_channel(2) == 1811 else block_mine_dropping(pin_front_mine_dropping)
+    drop_mine(pin_rear_mine_dropping) if get_channel(3) == 1811 else block_mine_dropping(pin_rear_mine_dropping)
 
 
 def read_bomb():
