@@ -28,9 +28,7 @@ MIN_SIGNAL_VALUE = ETHERNET_SETTINGS.min
 MAX_SIGNAL_VALUE = ETHERNET_SETTINGS.max
 IDLE_SIGNAL_VALUE = ETHERNET_SETTINGS.idle
 
-is_bombaA_released = False
 lest_ws_msg = 0
-
 
 pwm_left_motor = None
 pwm_right_motor = None
@@ -180,8 +178,8 @@ def start_leash():
         gas_throttle_right = read_adc(1)
 
         if gas_throttle_left > 10 and gas_throttle_right > 10:
-            throttle_left = map_value(gas_throttle_left, 272, 1023, 0, 100)
-            throttle_right = map_value(gas_throttle_right, 272, 1023, 0, 100)
+            throttle_left = map_value(gas_throttle_left, 272, 1023, 0, 10)
+            throttle_right = map_value(gas_throttle_right, 272, 1023, 0, 10)
 
             drone_control(throttle_left, throttle_right)
         # else:
