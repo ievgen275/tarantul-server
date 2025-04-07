@@ -1,6 +1,4 @@
 # sbus_communication
-import serial
-import time
 from pysbus.sbus import SBUS
 from pysbus.constants import SBUSConsts
 from pysbus.serial_parser import SerialParser
@@ -27,7 +25,7 @@ def read_sbus_data():
             print("Start reading")
             payload_ready, failsafe, lost_frame = sbus.read(channels)
             is_ready = payload_ready
-            #if payload_ready:
+            # if payload_ready:
             #    print("Channels: ", channels)
             #    print("Fail-Safe Status:", failsafe)
             #    print("Lost Frame Status:", lost_frame)

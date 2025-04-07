@@ -12,7 +12,7 @@ async def read_gps(websocket):
     global latitude, longitude
     while True:
         report = session.next()
-        if report['class'] == 'TPV':
+        if report("class") == 'TPV':
             latitude = round(getattr(report, 'lat', None), 4)
             longitude = round(getattr(report, 'lon', None), 4)
 

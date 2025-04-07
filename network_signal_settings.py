@@ -15,6 +15,7 @@ class RADIO_SETTINGS:
     idle = 992
     offset = 25
 
+
 class LEASH_SETTINGS:
     type = 'Leash'
     min = 272

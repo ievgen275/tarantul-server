@@ -3,14 +3,16 @@ import time
 
 connection = mavutil.mavlink_connection('/dev/ttyACM0', baud=115200)
 
+
 def check_connection():
     try:
         connection.wait_heartbeat()
         print("MAVLink is connect")
         return True
-    except:
-        print("MAVLink connection is lost")
+    except Exception as e:
+        print(f"MAVLink connection is lost {e}")
         return False
+
 
 def arm_vehicle():
     print("Sending arm command...")
@@ -30,6 +32,7 @@ def arm_vehicle():
             break
         time.sleep(1)
 
+
 def override_rc_channel(channel_number, pwm_value):
     rc_channels = [65535]*18
     rc_channels[channel_number - 1] = pwm_value
@@ -38,7 +41,8 @@ def override_rc_channel(channel_number, pwm_value):
         connection.target_component,
         *rc_channels
     )
-    print("MAVLink comand is send")
+    print("MAVLink command is send")
+
 
 def send_heartbeat():
     while True:
@@ -49,6 +53,6 @@ def send_heartbeat():
                 0, 0, 0
             )
             print("HEATBEAT send")
-        except:
-            print("HEATBEAT send is failed")
+        except Exception as e:
+            print(f"HEATBEAT send is failed {e}")
         time.sleep(1)

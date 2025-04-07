@@ -1,9 +1,7 @@
-import subprocess
 import threading
 from network_signal_settings import ETHERNET_SETTINGS, RADIO_SETTINGS
-from sbus_communication import read_sbus_data, get_channel, is_payload_ready
+from sbus_communication import read_sbus_data, get_channel
 from gps_handler import start_read_gps
-#import mavlink_connection
 import time
 import RPi.GPIO as GPIO
 import asyncio
@@ -23,21 +21,20 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.cleanup()
 
-# Constants for signal processing
-MIN_SIGNAL_VALUE = ETHERNET_SETTINGS.min
-MAX_SIGNAL_VALUE = ETHERNET_SETTINGS.max
-IDLE_SIGNAL_VALUE = ETHERNET_SETTINGS.idle
-
 lest_ws_msg = 0
 
-pwm_left_motor = None
-pwm_right_motor = None
-spi = None
-mavlink_is_connect = None
+spi = spidev.SpiDev()
+spi.open(0, 0)
+spi.max_speed_hz = 1350000
 
+pwm_left_motor = GPIO.PWM(pin_left_motor_control, 50)
+pwm_right_motor = GPIO.PWM(pin_right_motor_control, 50)
+pwm_left_motor.start(1)
+pwm_right_motor.start(1)
 
 # checking connection variables
 connection_type = RADIO_SETTINGS.type
+
 
 def main():
     threading.Thread(target=start_ws).start()
@@ -47,16 +44,8 @@ def main():
 
 def setup():
     print('Setup start')
-    global pwm_left_motor, pwm_right_motor, mavlink_is_connect, spi
-    #subprocess.run(['sudo', 'motion'], check=True)
-    #mavlink_is_connect = mavlink_connection.check_connection()
-    #threading.Thread(target=mavlink_connection.send_heartbeat, daemon=True).start()
-    #mavlink_connection.arm_vehicle()
+    global pwm_left_motor, pwm_right_motor
     threading.Thread(target=read_sbus_data, daemon=True).start()
-
-    spi = spidev.SpiDev()
-    spi.open(0, 0)
-    spi.max_speed_hz = 1350000
 
     GPIO.setup(pin_bomba_b, GPIO.OUT)
     GPIO.setup(pin_bomba_a, GPIO.OUT)
@@ -65,11 +54,6 @@ def setup():
 
     GPIO.setup(pin_left_motor_control, GPIO.OUT)
     GPIO.setup(pin_right_motor_control, GPIO.OUT)
-
-    pwm_left_motor = GPIO.PWM(pin_left_motor_control, 50)
-    pwm_right_motor = GPIO.PWM(pin_right_motor_control, 50)
-    pwm_left_motor.start(1)
-    pwm_right_motor.start(1)
 
     main()
 
@@ -133,6 +117,7 @@ async def start_websocket():
 def start_ws():
     asyncio.run(start_websocket())
 
+
 def drone_control(left_motor, right_motor):
     # if mavlink_is_connect:
     #     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 1000, 2000)
@@ -150,10 +135,9 @@ def drone_control(left_motor, right_motor):
     speed_left_motor = map_value(left_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
     speed_right_motor = map_value(right_motor, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max, 5, 75)
 
-    if speed_left_motor < 76 and speed_right_motor < 76 and speed_left_motor > 4 and speed_right_motor > 4:
+    if 4 < speed_left_motor < 76 and 4 < speed_right_motor < 76:
         pwm_left_motor.ChangeDutyCycle(speed_left_motor)
         pwm_right_motor.ChangeDutyCycle(speed_right_motor)
-
 
 
 def motor_stop():
@@ -167,10 +151,12 @@ def motor_stop():
     pwm_left_motor.ChangeDutyCycle(40)
     pwm_right_motor.ChangeDutyCycle(40)
 
+
 def read_adc(channel):
     adc = spi.xfer2([1, (8 + channel) << 4, 0])
     value = ((adc[1] & 3) << 8) + adc[2]
     return value
+
 
 def start_leash():
     while True:
@@ -182,9 +168,8 @@ def start_leash():
             throttle_right = map_value(gas_throttle_right, 272, 1023, 0, 10)
 
             drone_control(throttle_left, throttle_right)
-        # else:
-        #     change_network(ETHERNET_SETTINGS)
         time.sleep(0.5)
+
 
 def read_radio_signal():
     print('Radio is connect')
@@ -192,16 +177,24 @@ def read_radio_signal():
         # it's validation for security drone
         if time.time() - lest_ws_msg > 1:
             motor_stop()
-        if is_payload_ready():
-            rotation_signal = get_channel(0)
-            speed_signal = get_channel(1)
-            rotation_signal = map_value(rotation_signal, RADIO_SETTINGS.min, RADIO_SETTINGS.max, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
-            speed_signal = map_value(speed_signal, RADIO_SETTINGS.min, RADIO_SETTINGS.max, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
-        else:
-            rotation_signal = IDLE_SIGNAL_VALUE
-            speed_signal = IDLE_SIGNAL_VALUE
+        left_signal = get_channel(0)
+        right_signal = get_channel(1)
+        left_value = map_value(
+            left_signal,
+            RADIO_SETTINGS.min,
+            RADIO_SETTINGS.max,
+            ETHERNET_SETTINGS.min,
+            ETHERNET_SETTINGS.max
+        )
+        right_value = map_value(
+            right_signal,
+            RADIO_SETTINGS.min,
+            RADIO_SETTINGS.max,
+            ETHERNET_SETTINGS.min,
+            ETHERNET_SETTINGS.max
+        )
         if connection_type == RADIO_SETTINGS.type:
-            drone_control(rotation_signal, speed_signal)
+            drone_control(left_value, right_value)
             read_mine()
             read_bomb()
         time.sleep(0.24)
@@ -244,18 +237,12 @@ def block_bomba(pin_bomb):
 
 def change_network(network_settings):
     print(network_settings.type)
-    global connection_type, MIN_SIGNAL_VALUE, MAX_SIGNAL_VALUE, IDLE_SIGNAL_VALUE
+    global connection_type
     connection_type = network_settings.type
-    MIN_SIGNAL_VALUE = network_settings.min
-    MAX_SIGNAL_VALUE = network_settings.max
-    IDLE_SIGNAL_VALUE = network_settings.idle
 
-    if connection_type == RADIO_SETTINGS.type:
-        MIN_SIGNAL_VALUE = map_value(MIN_SIGNAL_VALUE, network_settings.min, network_settings.max, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
-        MAX_SIGNAL_VALUE = map_value(MAX_SIGNAL_VALUE, network_settings.min, network_settings.max, ETHERNET_SETTINGS.min, ETHERNET_SETTINGS.max)
-        IDLE_SIGNAL_VALUE = ETHERNET_SETTINGS.idle
 
 def map_value(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
+
 
 setup()
